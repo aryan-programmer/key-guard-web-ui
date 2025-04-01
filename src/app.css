@@ -1,3 +1,156 @@
-@import 'tailwindcss';
+@import "tailwindcss";
+@config "../tailwind.config.ts";
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
+@tailwind utilities;
+
+*,
+::before,
+::after {
+	box-sizing: border-box; /* 1 */
+}
+
+@layer base {
+	:root {
+		--main: #a3e636;
+		--error: #ea5d5d;
+		--overlay: rgba(0, 0, 0, 0.8); /* background color overlay for alert dialogs, modals, etc. */
+
+		--bg: #e0e7f1;
+		--bw: #fff; /* white and secondary black e.g. utility class variant would be: bg-[#fff] dark:bg-[#212121] */
+		--blank: #000; /* blank black and white */
+		--border: #000;
+		--text: #000;
+		--mtext: #000; /* text that is placed on background with main color e.g. text color of default button */
+		--ring: #000;
+		--ring-offset: #fff;
+
+		--border-radius: 0px;
+		--box-shadow-x: 4px;
+		--box-shadow-y: 4px;
+		--reverse-box-shadow-x: -4px;
+		--reverse-box-shadow-y: -4px;
+		--base-font-weight: 500;
+		--heading-font-weight: 700;
+
+		--shadow: var(--box-shadow-x) var(--box-shadow-y) 0px 0px var(--border);
+	}
+
+	.dark {
+		--bg: #2c312b;
+		--bw: #212121;
+		--blank: #fff;
+		--border: #000;
+		--text: #e6e6e6;
+		--mtext: #000;
+		--ring: #fff;
+		--ring-offset: #000;
+
+		--shadow: var(--box-shadow-x) var(--box-shadow-y) 0px 0px var(--border);
+	}
+}
+
+@utility m-with-shadow {
+	/* margin-top: var(--box-shadow-x);
+	margin-left: var(--box-shadow-x);
+	margin-bottom: calc(2 * var(--box-shadow-x));
+	margin-right: calc(2 * var(--box-shadow-x)); */
+	margin: calc(2.5 * var(--box-shadow-x));
+}
+
+@utility m-with-reverse-shadow {
+	margin: calc(2.5 * var(--box-shadow-x));
+	/* margin-top: calc(2 * var(--box-shadow-x));
+	margin-left: calc(2 * var(--box-shadow-x));
+	margin-bottom: var(--box-shadow-x);
+	margin-right: var(--box-shadow-x); */
+}
+
+@utility gap-neob {
+	gap: calc(2.5 * var(--box-shadow-x));
+}
+
+@utility basic-element {
+	@apply rounded-base font-base;
+	@apply border-border border-2;
+	@apply focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 focus-visible:outline-none;
+	@apply transition-all;
+	@apply ring-offset-white;
+	@apply disabled:pointer-events-none disabled:opacity-50;
+	@apply [&.disabled]:pointer-events-none [&.disabled]:opacity-50;
+}
+
+@utility neob {
+	@apply m-with-shadow;
+	@apply shadow-shadow;
+}
+
+@utility neob-hover {
+	@apply m-with-shadow;
+	@apply shadow-shadow;
+	@apply hover:translate-x-box-shadow-x hover:translate-y-box-shadow-y hover:shadow-none;
+	@apply [&.hover]:translate-x-box-shadow-x [&.hover]:translate-y-box-shadow-y [&.hover]:shadow-none;
+}
+
+@utility neob-focus {
+	@apply m-with-shadow;
+	@apply shadow-shadow;
+	@apply focus:translate-x-box-shadow-x focus:translate-y-box-shadow-y focus:shadow-none;
+	@apply [&.focus]:translate-x-box-shadow-x [&.focus]:translate-y-box-shadow-y [&.focus]:shadow-none;
+}
+
+@utility neob-reverse-hover {
+	@apply m-with-reverse-shadow;
+	@apply hover:translate-x-reverse-box-shadow-x hover:translate-y-reverse-box-shadow-y hover:shadow-shadow;
+	@apply [&.hover]:translate-x-reverse-box-shadow-x [&.hover]:translate-y-reverse-box-shadow-y [&.hover]:shadow-shadow;
+}
+
+@utility neob-reverse-focus {
+	@apply m-with-reverse-shadow;
+	@apply focus:translate-x-reverse-box-shadow-x focus:translate-y-reverse-box-shadow-y focus:shadow-shadow;
+	@apply [&.focus]:translate-x-reverse-box-shadow-x [&.focus]:translate-y-reverse-box-shadow-y [&.focus]:shadow-shadow;
+}
+
+@utility background-main {
+	@apply bg-main;
+	@apply text-mtext;
+}
+
+@utility background-error {
+	@apply bg-error;
+	@apply text-mtext;
+}
+
+@utility background-blank {
+	@apply bg-bw;
+	@apply text-text;
+}
+
+@layer components {
+	.button {
+		@apply basic-element;
+		@apply inline-flex flex-row items-center justify-center gap-2;
+		@apply text-sm whitespace-nowrap;
+		@apply [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0;
+	}
+	.button-size-default {
+		@apply h-10 px-4 py-2;
+	}
+	.button-size-sm {
+		@apply h-9 px-3;
+	}
+	.button-size-lg {
+		@apply h-11 px-8;
+	}
+	.button-size-icon {
+		@apply h-10 w-1;
+	}
+
+	.input {
+		@apply basic-element;
+		@apply text-sm;
+		@apply background-blank selection:background-main;
+		@apply file:font-base file:border-0 file:bg-transparent file:text-sm;
+		@apply flex h-10 w-full px-3 py-2;
+	}
+}

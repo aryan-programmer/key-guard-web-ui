@@ -92,3 +92,41 @@ export function isNumeric(value: string): boolean {
 	// @ts-expect-error Req see https://github.com/angular/angular/blob/4.3.x/packages/common/src/pipes/number_pipe.ts#L172
 	return !isNaN(value - parseFloat(value));
 }
+
+const objectToString = Object.prototype.toString;
+const getPrototypeOf = Object.getPrototypeOf;
+const ERROR_TYPE = "[object Error]";
+
+export function isError(err: unknown): err is Error {
+	if (typeof err !== "object") {
+		return false;
+	}
+	if (err instanceof Error) {
+		// Accept `AssertionError`s from the `assert` module that ships
+		// with Node.js v6.1.0, compare issue #4.
+		return true;
+	}
+	while (err) {
+		if (objectToString.call(err) === ERROR_TYPE) {
+			return true;
+		}
+		err = getPrototypeOf(err);
+		if (err instanceof Error) {
+			return true;
+		}
+	}
+	return false;
+}
+
+export function logError(message: string, ex: unknown): void {
+	console.group(message);
+	if (isError(ex)) {
+		console.error("Error Name:", ex.name);
+		console.error("Error Message:", ex.message);
+		if (ex.cause != null) console.error("Error Cause:", ex.cause);
+		if (ex.stack != null) console.error("Error Stack:\n", ex.stack);
+	} else {
+		console.error("Error: ", ex);
+	}
+	console.groupEnd();
+}

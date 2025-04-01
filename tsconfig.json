@@ -28,23 +28,14 @@
 				"name": "next"
 			}
 		],
-		"paths": {
-			"@/*": [
-				"./src/*"
-			]
-		},
+		"baseUrl": ".",
 		"allowSyntheticDefaultImports": true,
 		"noFallthroughCasesInSwitch": true,
 		"experimentalDecorators": true,
 		"useDefineForClassFields": true,
-		"emitDecoratorMetadata": true
+		"emitDecoratorMetadata": true,
+		"verbatimModuleSyntax": false
 	},
-	"include": [
-		"next-env.d.ts",
-		"**/*.ts",
-		"**/*.tsx",
-		".next/types/**/*.ts"
-	],
 	"exclude": [
 		"node_modules"
 	]

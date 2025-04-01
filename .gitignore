@@ -64,3 +64,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+ws_rsa
+ws_rsa.pub
+ws_hmac
