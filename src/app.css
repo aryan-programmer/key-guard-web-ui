@@ -12,8 +12,10 @@
 
 @layer base {
 	:root {
-		--main: #a3e636;
-		--error: #ea5d5d;
+		--main: #78beff;
+		--success: #82f682;
+		--warning: #ffd240;
+		--error: #ed9292;
 		--overlay: rgba(0, 0, 0, 0.8); /* background color overlay for alert dialogs, modals, etc. */
 
 		--bg: #e0e7f1;
@@ -28,12 +30,13 @@
 		--border-radius: 0px;
 		--box-shadow-x: 4px;
 		--box-shadow-y: 4px;
+		--box-shadow-color: #000;
 		--reverse-box-shadow-x: -4px;
 		--reverse-box-shadow-y: -4px;
 		--base-font-weight: 500;
 		--heading-font-weight: 700;
 
-		--shadow: var(--box-shadow-x) var(--box-shadow-y) 0px 0px var(--border);
+		--shadow: var(--box-shadow-x) var(--box-shadow-y) 0px 0px var(--box-shadow-color);
 	}
 
 	.dark {
@@ -46,7 +49,7 @@
 		--ring: #fff;
 		--ring-offset: #000;
 
-		--shadow: var(--box-shadow-x) var(--box-shadow-y) 0px 0px var(--border);
+		--shadow: var(--box-shadow-x) var(--box-shadow-y) 0px 0px var(--box-shadow-color);
 	}
 }
 
@@ -111,8 +114,28 @@
 	@apply [&.focus]:translate-x-reverse-box-shadow-x [&.focus]:translate-y-reverse-box-shadow-y [&.focus]:shadow-shadow;
 }
 
+@utility background-info {
+	@apply bg-main;
+	@apply text-mtext;
+}
+
 @utility background-main {
 	@apply bg-main;
+	@apply text-mtext;
+}
+
+@utility background-success {
+	@apply bg-success;
+	@apply text-mtext;
+}
+
+@utility background-warning {
+	@apply bg-warning;
+	@apply text-mtext;
+}
+
+@utility background-error {
+	@apply bg-error;
 	@apply text-mtext;
 }
 
@@ -152,5 +175,36 @@
 		@apply background-blank selection:background-main;
 		@apply file:font-base file:border-0 file:bg-transparent file:text-sm;
 		@apply flex h-10 w-full px-3 py-2;
+	}
+
+	.accordion {
+		@apply basic-element neob-reverse-focus transition-all;
+	}
+
+	.accordion-button {
+		@apply flex flex-row justify-between;
+		@apply border-border w-full p-2;
+		@apply text-left;
+		@apply transition-all;
+		@apply data-[state=open]:border-b-2 [&[data-state=open]>svg]:rotate-180;
+	}
+
+	.loader {
+		border: 24px solid #fff;
+		border-bottom-color: var(--main);
+		border-radius: 50%;
+		display: inline-block;
+		position: relative;
+		box-sizing: border-box;
+		animation: rotate-360 1s linear infinite;
+	}
+}
+
+@keyframes rotate-360 {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
 	}
 }

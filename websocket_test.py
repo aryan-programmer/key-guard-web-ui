@@ -152,7 +152,7 @@ def send_unlock_key_failed(websocket: ServerConnection, id: str, reason: str | N
 
 
 def main():
-    with serve(echo, "localhost", 8765) as server:
+    with serve(echo, "localhost", 2000) as server:
         server.serve_forever()
 
 
@@ -162,23 +162,65 @@ if __name__ == "__main__":
         res = input(">")
         if main_conn is not None:
             main_conn: ServerConnection
-            encoded_jwt = jwt.encode(
-                {
-                    "username": "aryan",
-                    "generatedAt": datetime.datetime.now().isoformat(),
-                },
-                secret,
-                algorithm="HS256",
-            )
-            last_jwt = encoded_jwt
-            main_conn.send(
-                json.dumps(
+            if res == "":
+                encoded_jwt = jwt.encode(
                     {
-                        "type": "login",
-                        "status": "success",
-                        "jwt": encoded_jwt,
-                        "name": "Aryan Chudasama",
-                        "keyData": key_data_2,
-                    }
+                        "username": "aryan",
+                        "generatedAt": datetime.datetime.now().isoformat(),
+                    },
+                    secret,
+                    algorithm="HS256",
                 )
-            )
+                last_jwt = encoded_jwt
+                main_conn.send(
+                    json.dumps(
+                        {
+                            "type": "login",
+                            "status": "success",
+                            "jwt": encoded_jwt,
+                            "name": "Aryan Chudasama",
+                            "keyData": key_data_2,
+                        }
+                    )
+                )
+            elif res == "s1":
+                main_conn.send(
+                    json.dumps(
+                        {
+                            "type": "key-stolen",
+                            "slotName": "Key Slot 1",
+                            "keyName": "Key Alpha",
+                        }
+                    )
+                )
+            elif res == "s2":
+                main_conn.send(
+                    json.dumps(
+                        {
+                            "type": "key-stolen",
+                            "slotName": "Key Slot 2",
+                            "keyName": "Key Beta",
+                            "deceptiveReplacement": "Key Omega",
+                        }
+                    )
+                )
+            elif res == "u":
+                main_conn.send(
+                    json.dumps(
+                        {
+                            "type": "unauth-key-place-attempt",
+                            "slotName": "Key Slot 2",
+                            "keyName": "Key Beta",
+                        }
+                    )
+                )
+            elif res == "unk":
+                main_conn.send(
+                    json.dumps(
+                        {
+                            "type": "unknown-key-placed",
+                            "slotName": "Key Slot 2",
+                            "keyId": "2b7q0a",
+                        }
+                    )
+                )

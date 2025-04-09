@@ -1,13 +1,21 @@
 <script lang="ts">
-	import { slide } from "svelte/transition";
-	import { Connection, keySlotSelectionMaxTimeMs } from "../lib/connection.svelte";
+	import Collapsible from "../lib/collapsible.svelte";
+	import {
+		Connection,
+		keySlotPostSelectionPrepTimeMs,
+		keySlotSelectionMaxTimeMs,
+		RELOCK_KEY_TIMEOUT_S,
+		SOLENOID_LOCK_WAIT_TIME_S
+	} from "../lib/connection.svelte";
+	import { localStore } from "../lib/local-store.svelte";
 	import LoginForm from "../lib/login-form.svelte";
+	import ProgressBar from "../lib/progress-bar.svelte";
 	import PromiseAccordion from "../lib/promise-accordion.svelte";
-	import { addToast } from "../lib/toaster.svelte";
 
-	let url: string = $state("ws://localhost:8765");
+	const defaultUrl = "ws://raspberrypi.local:2000";
+	const url = localStore("ws-url", defaultUrl);
 	let isValidUrl = $derived.by(() => {
-		const urlParsed = URL.parse(url);
+		const urlParsed = URL.parse(url.value);
 		if (urlParsed == null) return false;
 		return urlParsed.protocol === "ws:";
 	});
@@ -15,57 +23,67 @@
 
 	async function connectToSocket() {
 		if (!isValidUrl) return;
-		await connection.connect(url);
+		await connection.connect(url.value);
 	}
 
 	function onSubmit({ username, password }: { username: string; password: string }) {
 		connection.login(username, password);
 	}
-
-	$effect(() => {
-		function keySlotSelectionTimeout() {
-			addToast({
-				data: {
-					title: "Key slot selection timed out",
-					description: "You waited for too long. Please login again.",
-					variant: "warning"
-				},
-				type: "assertive",
-				closeDelay: 5000
-			});
-		}
-		function keySlotTransactionDone() {
-			addToast({
-				data: {
-					title: "Key slot transaction successfully completed",
-					description: "To perform another tranaction please login again.",
-					variant: "success"
-				},
-				type: "assertive",
-				closeDelay: 3000
-			});
-		}
-		function keySlotTransactionFailed(reason?: string) {
-			addToast({
-				data: {
-					title: "Key slot transaction failed",
-					description: reason ?? "Unknown error",
-					variant: "error"
-				},
-				type: "assertive",
-				closeDelay: 3000
-			});
-		}
-		connection.on("keySlotSelectionTimeout", keySlotSelectionTimeout);
-		connection.on("keySlotTransactionDone", keySlotTransactionDone);
-		connection.on("keySlotTransactionFailed", keySlotTransactionFailed);
-		return () => {
-			connection.off("keySlotSelectionTimeout", keySlotSelectionTimeout);
-			connection.off("keySlotTransactionDone", keySlotTransactionDone);
-			connection.off("keySlotTransactionFailed", keySlotTransactionFailed);
-		};
-	});
 </script>
+
+<svelte:head>
+	<title>KeyGuard Web UI</title>
+</svelte:head>
+
+<Collapsible title="Instructions">
+	<div class="background-blank p-2">
+		<ol class="list-outside list-decimal pl-4">
+			<li>
+				<b>Connect to the KeyGuard system server</b>: Specify the URL of the WebSocket server and
+				click connect. This is usually done by the administrator once during start up.
+			</li>
+			<li>
+				<b>Login</b>: Login by presenting your card to the reader with, or with your username and
+				password.
+			</li>
+			<li>
+				<b>Select key slot</b>:
+				<ul class="list-outside list-disc pl-4">
+					<li>
+						Select the key to check out, or key slot to place a key into. Any key slot containing a
+						key you are not authorized for will be disabled and grayed out.
+					</li>
+					<li>
+						You will have {(keySlotSelectionMaxTimeMs / 1000).toFixed(0)} seconds to select a key slot
+						to unlock.
+					</li>
+					<li>
+						After you click the button to select a key slot to unlock, the system will be sent the
+						command to unlock after {(keySlotPostSelectionPrepTimeMs / 1000).toFixed(0)} seconds to provide
+						some buffer time.
+					</li>
+					<li>
+						Once the key slot unlocks:
+						<ul class="list-outside list-disc pl-4">
+							<li>
+								It will stay unlocked for {RELOCK_KEY_TIMEOUT_S} seconds if you are removing a key.
+							</li>
+							<li>
+								If you are placing a key, then it will automatically lock {SOLENOID_LOCK_WAIT_TIME_S}
+								seconds after it detects the key. If you do not place a key, it will lock automatically
+								after {RELOCK_KEY_TIMEOUT_S} seconds from when it was unlocked.
+							</li>
+							<li>
+								If you fail to perform your task before it times out, you will have to start a new
+								transaction from the login process.
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</li>
+		</ol>
+	</div>
+</Collapsible>
 
 <PromiseAccordion
 	state={connection.connectionState}
@@ -75,13 +93,10 @@
 	title-failed="Failed to connected to KeyGuard system, try again"
 	title-done="Connected to KeyGuard system successfully"
 >
-	<div
-		class="background-blank flex flex-row overflow-hidden p-2"
-		transition:slide={{ duration: 250 }}
-	>
-		<input class="input neob-focus" type="url" bind:value={url} />
+	<div class="background-blank flex flex-row overflow-hidden p-2">
+		<input class="input neob-focus" type="url" bind:value={url.value} />
 		<button
-			class="button neob-hover button-size-default background-main"
+			class="button neob-hover button-size-default background-success"
 			onclick={connectToSocket}
 			disabled={!isValidUrl}>Connect</button
 		>
@@ -107,20 +122,36 @@
 	title-failed="Failed to unlock selected key slot: try again"
 	title-done="Unlocked key slot successfully"
 >
+	{#snippet alwaysVisibleChildren()}
+		<ProgressBar
+			progressBar={connection.keySlotSelectionRemainingTimeProgressBar}
+			backgroundClass="background-main"
+			total={keySlotSelectionMaxTimeMs / 1000}
+		>
+			{#snippet text({ remaining })}
+				Selection Time Remaining: {Math.floor(remaining)}s
+			{/snippet}
+		</ProgressBar>
+		<ProgressBar
+			progressBar={connection.keySlotPostSelectionBufferTimeProgressBar}
+			backgroundClass="background-warning"
+			total={keySlotPostSelectionPrepTimeMs / 1000}
+		>
+			{#snippet text({ remaining })}
+				Post Selection Preparation Time: {Math.floor(remaining)}s
+			{/snippet}
+		</ProgressBar>
+		<ProgressBar
+			progressBar={connection.keySlotInsertTimeProgressBar}
+			backgroundClass="background-main"
+			total={RELOCK_KEY_TIMEOUT_S}
+		>
+			{#snippet text({ remaining })}
+				Auto-Relock Timeout: {Math.floor(remaining)}s
+			{/snippet}
+		</ProgressBar>
+	{/snippet}
 	<div class="gap-neob m-with-shadow grid grid-flow-row grid-cols-2">
-		<div class="basic-element neob background-blank col-span-2 m-0 min-h-4 w-full">
-			<div
-				class="background-main h-full text-center"
-				style:width={`${100 - connection.keySlotSelectionRemainingTimeProgressBar.fraction * 100}%`}
-			>
-				{Math.floor(
-					(keySlotSelectionMaxTimeMs -
-						connection.keySlotSelectionRemainingTimeProgressBar.fraction *
-							keySlotSelectionMaxTimeMs) /
-						1000
-				)}s
-			</div>
-		</div>
 		{#each connection.keySlots as keySlot (keySlot.slotId)}
 			<button
 				onclick={() => {

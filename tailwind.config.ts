@@ -7,6 +7,8 @@ export default {
 			colors: {
 				main: "var(--main)",
 				overlay: "var(--overlay)",
+				success: "var(--success)",
+				warning: "var(--warning)",
 				error: "var(--error)",
 				bg: "var(--bg)",
 				bw: "var(--bw)",
