@@ -50,7 +50,7 @@
 				<b>Select key slot</b>:
 				<ul class="list-outside list-disc pl-4">
 					<li>
-						Select the key to check out, or key slot to place a key into. Any key slot containing a
+						Select the key to withdraw, or key slot to deposit a key into. Any key slot containing a
 						key you are not authorized for will be disabled and grayed out.
 					</li>
 					<li>
@@ -69,8 +69,8 @@
 								It will stay unlocked for {RELOCK_KEY_TIMEOUT_S} seconds if you are removing a key.
 							</li>
 							<li>
-								If you are placing a key, then it will automatically lock {SOLENOID_LOCK_WAIT_TIME_S}
-								seconds after it detects the key. If you do not place a key, it will lock automatically
+								If you are depositing a key, then it will automatically lock {SOLENOID_LOCK_WAIT_TIME_S}
+								seconds after it detects the key. If you do not deposit a key, it will lock automatically
 								after {RELOCK_KEY_TIMEOUT_S} seconds from when it was unlocked.
 							</li>
 							<li>
@@ -164,9 +164,9 @@
 				{#if keySlot.accessDenied === true}
 					ACCESS DENIED
 				{:else if keySlot.keyName != null}
-					Remove {keySlot.keyName}
+					Withdraw {keySlot.keyName}
 				{:else}
-					Insert key
+					Deposit key
 				{/if}
 			</button>
 		{/each}

@@ -177,23 +177,23 @@ export class Connection {
 				} else if (isUnauthorizedKeyPlaceAttemptedMessage(res)) {
 					addAlertoast({
 						data: {
-							title: "Unauthorized key place attempted",
-							description: `An unknown user attemped to place ${res.keyName} at ${res.slotName} without authenticating themselves.`,
+							title: "Unauthorized key deposit attempted",
+							description: `An unknown user attemped to deposit ${res.keyName} at ${res.slotName} without authenticating themselves.`,
 							variant: "error"
 						}
 					});
 				} else if (isUnknownKeyPlacedMessage(res)) {
 					addAlertoast({
 						data: {
-							title: "Unknown key placed",
-							description: `An user attemped to place an unidentified key with RFID tag ${res.keyId} at ${res.slotName}.`,
+							title: "Unknown key deposited",
+							description: `An user attemped to deposited an unidentified key with RFID tag ${res.keyId} at ${res.slotName}.`,
 							variant: "error"
 						}
 					});
 				} else if (isUnrecognizedUserCardMessage(res)) {
 					addAlertoast({
 						data: {
-							title: "Unknown user card placed",
+							title: "User card not recognized",
 							description: `An unrecognized user card was shown with RFID tag ${res.cardId}.`,
 							variant: "error"
 						}
