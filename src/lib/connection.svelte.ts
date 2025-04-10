@@ -160,7 +160,7 @@ export class Connection {
 			});
 			ws.onMessage.addListener((v) => {
 				const res = typeof v === "object" ? v : isNonNullAndNonEmpty(v) ? JSON.parse(v) : null;
-				// console.log("ws.onMessage: ", res, isLoginResult(res));
+				console.log("ws.onMessage: ", res, isLoginResult(res));
 				if (isLoginResult(res) && res.status === "success" && res["id"] == null) {
 					this.onSuccessLoginResult(res);
 				} else if (isKeyStolenMessage(res)) {
@@ -311,6 +311,7 @@ export class Connection {
 			};
 			this.keySlotInsertTimeProgressBar.countUp(RELOCK_KEY_TIMEOUT_S * 1000);
 			const res = await ws.sendRequest(req);
+			console.log(res);
 			this.keySlotInsertTimeProgressBar.cancel();
 			this.loginState = State.NotStarted;
 			this.keySlotSelectionState = State.Forbidden;

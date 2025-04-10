@@ -25,8 +25,8 @@
 	let { onSubmit }: { onSubmit: (data: Data_T) => void } = $props();
 	const form = superForm<Data_T>(
 		{
-			username: "aryan",
-			password: "password"
+			username: "",
+			password: ""
 		},
 		{
 			validators: zodClient(schema)

@@ -12,12 +12,12 @@
 	import ProgressBar from "../lib/progress-bar.svelte";
 	import PromiseAccordion from "../lib/promise-accordion.svelte";
 
-	const defaultUrl = "ws://raspberrypi.local:2000";
+	const defaultUrl = "wss://raspberrypi.local:2000";
 	const url = localStore("ws-url", defaultUrl);
 	let isValidUrl = $derived.by(() => {
 		const urlParsed = URL.parse(url.value);
 		if (urlParsed == null) return false;
-		return urlParsed.protocol === "ws:";
+		return urlParsed.protocol === "ws:" || urlParsed.protocol === "wss:";
 	});
 	let connection = new Connection();
 
@@ -164,7 +164,7 @@
 				{#if keySlot.accessDenied === true}
 					ACCESS DENIED
 				{:else if keySlot.keyName != null}
-					Remove key {keySlot.keyName}
+					Remove {keySlot.keyName}
 				{:else}
 					Insert key
 				{/if}

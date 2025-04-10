@@ -19,7 +19,7 @@
 <script lang="ts">
 	import { X } from "@lucide/svelte";
 	import { Progress } from "melt/components";
-	import { fly } from "svelte/transition";
+	import { slide } from "svelte/transition";
 </script>
 
 <div
@@ -32,8 +32,9 @@
 			class="toast-holder"
 			{...toast.content}
 			style:--n={toaster.toasts.length - i}
-			in:fly={{ y: 60, opacity: 0.9 }}
-			out:fly={{ y: 20 }}
+			transition:slide={{
+				axis: "y"
+			}}
 		>
 			<div
 				class="toast"
