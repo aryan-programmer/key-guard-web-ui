@@ -115,3 +115,5 @@ To withdraw any key, simply click the corresponding button and follow a process 
 Additionally, any detected malicious activity will trigger a notification on the UI.
 
 Furthermore, the RPi application logs all events for comprehensive auditing.
+
+For a full project report that adhers to the Design Engineering format, view the report PDF [here](./design_engineering_report.pdf).
